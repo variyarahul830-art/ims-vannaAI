@@ -1,0 +1,30 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# InternHub — Python Dependencies
+# Install with: pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Vanna AI 2.0 ─────────────────────────────────────────────────────────────
+# Vanna core framework + ChromaDB vector store integration
+vanna[chromadb]>=2.0.0
+
+# ── LLM Provider ─────────────────────────────────────────────────────────────
+# Official Groq Python SDK
+groq>=0.5.0
+
+# ── Database ──────────────────────────────────────────────────────────────────
+# PostgreSQL adapter (Vanna's connect_to_postgres uses psycopg2 under the hood)
+psycopg2-binary>=2.9.9
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+
+# ── Security & Auth ───────────────────────────────────────────────────────────
+PyJWT>=2.8.0
+
+# ── Configuration ─────────────────────────────────────────────────────────────
+python-dotenv>=1.0.1
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+# Needed by Vanna's built-in dataframe handling
+pandas>=2.2.0

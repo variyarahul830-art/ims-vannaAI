@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InternHub — AI SQL Assistant</title>
+
+  <!--
+    Vanna's <vanna-chat> Web Component
+    ===================================
+    Drop this anywhere in your Super Admin dashboard HTML.
+    The component talks to your FastAPI backend and renders a full
+    chat UI — no additional JavaScript needed.
+
+    IMPORTANT:
+      • Set `api-base` to your FastAPI server's base URL.
+      • Set `bearer-token` dynamically from your auth state (JWT).
+      • Never hard-code the JWT in production HTML.
+  -->
+
+  <!-- Load the Vanna web component from the Vanna CDN -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/vanna-webcomponent@latest/dist/vanna-chat.esm.js">
+  </script>
+
+  <style>
+    /* ── Reset ───────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    /* ── Chat Container ──────────────────────────────────── */
+    .chat-wrapper {
+      width: 100%;
+      max-width: 900px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    vanna-chat {
+      --vanna-primary: #6366f1;
+      --vanna-bg: #1e293b;
+      --vanna-surface: #273549;
+      --vanna-text: #e2e8f0;
+      --vanna-text-muted: #94a3b8;
+      --vanna-border: #334155;
+      --vanna-radius: 12px;
+      display: block;
+      height: 600px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>🤖 InternHub AI SQL Assistant</h1>
+    <p>Ask questions about your interns, departments, and organisations in plain English.</p>
+  </header>
+
+  <div class="chat-wrapper">
+    <!--
+      ┌────────────────────────────────────────────────────────────┐
+      │  <vanna-chat> attributes                                   │
+      │                                                            │
+      │  api-base      → URL of your FastAPI /api/v0 prefix        │
+      │  bearer-token  → JWT for the logged-in super admin         │
+      │  placeholder   → Input field placeholder text             │
+      │  title         → Chat header title                        │
+      └────────────────────────────────────────────────────────────┘
+    -->
+    <vanna-chat id="vanna-chatbot" api-base="http://localhost:8000/api/v0"
+      placeholder="e.g. How many active interns are there?" title="InternHub Data Assistant"></vanna-chat>
+  </div>
+
+</body>
+
+</html>

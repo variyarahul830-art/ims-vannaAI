@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternHub AI | Super Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #2d3e50;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --glass: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .title-gradient {
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            max-width: 1100px;
+            width: 95%;
+            margin: 0 auto 4rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* --- Search Bar Area --- */
+        .search-section {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 1rem;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.1rem;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* --- SQL Preview --- */
+        .sql-panel {
+            background: #000;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent);
+            display: none;
+        }
+
+        .sql-header {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            color: #d1d5db;
+            line-height: 1.6;
+            word-break: break-all;
+        }
+
+        /* --- Results Table --- */
+        .results-section {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 1rem;
+            overflow: hidden;
+            display: none;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            text-align: left;
+            padding: 1.25rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05rem;
+        }
+
+        td {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* --- States --- */
+        .empty-state {
+            text-align: center;
+            padding: 10rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .loader {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-msg {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: none;
+        }
+
+        /* --- Animations --- */
+        .fade-in {
+            animation: fadeIn 0.5s ease forward;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <p style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 2px;">Vanna 2.0 Agent</p>
+        <h1 class="title-gradient">InternHub Data Assistant</h1>
+    </header>
+
+    <main class="container">
+        <!-- Input Section -->
+        <div class="search-section">
+            <input type="text" id="queryInput" placeholder="Ask anything about interns, departments, or organizations..." autocomplete="off">
+            <button id="searchBtn">
+                <span id="btnText">Execute</span>
+                <div class="loader" id="loader"></div>
+            </button>
+        </div>
+
+        <!-- Error Msg -->
+        <div id="errorBox" class="error-msg"></div>
+
+        <!-- SQL Panel -->
+        <div id="sqlPanel" class="sql-panel">
+            <div class="sql-header">
+                <span>Generated PostgreSQL Query</span>
+                <span style="color: var(--text-muted); font-size: 0.7rem;">Optimized by Llama 3.3</span>
+            </div>
+            <code id="sqlCode"></code>
+        </div>
+
+        <!-- Charts Section -->
+        <div id="chartSection" class="results-section" style="padding: 2rem; margin-bottom: 2rem;">
+            <div class="sql-header" style="margin-bottom: 1.5rem;">Data Visualization</div>
+            <div style="height: 400px; display: flex; justify-content: center;">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div id="resultsSection" class="results-section">
+            <div class="table-container">
+                <table id="resultsTable">
+                    <thead id="tableHead"></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem; opacity: 0.5;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <p>Intelligence is waiting. Ask your first question above.</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;">Try: "List all interns from MIT university"</p>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api/v0/ask';
+        
+        const input = document.getElementById('queryInput');
+        const btn = document.getElementById('searchBtn');
+        const btnText = document.getElementById('btnText');
+        const loader = document.getElementById('loader');
+        const sqlPanel = document.getElementById('sqlPanel');
+        const sqlCode = document.getElementById('sqlCode');
+        const resultsSection = document.getElementById('resultsSection');
+        const chartSection = document.getElementById('chartSection');
+        const emptyState = document.getElementById('emptyState');
+        const errorBox = document.getElementById('errorBox');
+        
+        const tableHead = document.getElementById('tableHead');
+        const tableBody = document.getElementById('tableBody');
+
+        let currentChart = null;
+
+        async function performQuery() {
+            const query = input.value.trim();
+            if (!query) return;
+
+            // Reset UI
+            errorBox.style.display = 'none';
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            loader.style.display = 'block';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: query })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.detail || 'Query failed');
+
+                // 1. Show SQL
+                sqlCode.textContent = data.sql;
+                sqlPanel.style.display = 'block';
+                sqlPanel.classList.add('fade-in');
+
+                // 2. Build Table
+                renderTable(data.columns, data.results);
+
+                // 3. Build Chart (if numeric data present)
+                renderChart(data.columns, data.results);
+                
+                // Hide empty state
+                emptyState.style.display = 'none';
+                resultsSection.style.display = 'block';
+                resultsSection.classList.add('fade-in');
+
+            } catch (err) {
+                errorBox.textContent = `Error: ${err.message}`;
+                errorBox.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btnText.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        }
+
+        function renderTable(columns, rows) {
+            // Clear current
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            if (rows.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="100%" style="text-align: center; color: var(--text-muted);">No records found in database.</td></tr>';
+                return;
+            }
+
+            // Create Headers
+            const trHead = document.createElement('tr');
+            columns.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col.replace(/_/g, ' ');
+                trHead.appendChild(th);
+            });
+            tableHead.appendChild(trHead);
+
+            // Create Rows
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                columns.forEach(col => {
+                    const td = document.createElement('td');
+                    td.textContent = row[col] === null ? '-' : row[col];
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function renderChart(columns, rows) {
+            // Check if we have numeric data
+            const numericCols = columns.filter(col => {
+                return rows.length > 0 && !isNaN(parseFloat(rows[0][col])) && isFinite(rows[0][col]);
+            });
+
+            const labelCol = columns.find(col => !numericCols.includes(col)) || columns[0];
+
+            if (numericCols.length === 0 || rows.length < 2) {
+                chartSection.style.display = 'none';
+                return;
+            }
+
+            chartSection.style.display = 'block';
+            chartSection.classList.add('fade-in');
+
+            if (currentChart) currentChart.destroy();
+
+            const ctx = document.getElementById('myChart').getContext('2d');
+            
+            const datasets = numericCols.map((col, idx) => ({
+                label: col.replace(/_/g, ' '),
+                data: rows.map(r => r[col]),
+                backgroundColor: idx === 0 ? 'rgba(99, 102, 241, 0.5)' : 'rgba(139, 92, 246, 0.5)',
+                borderColor: idx === 0 ? '#6366f1' : '#8b5cf6',
+                borderWidth: 2,
+                borderRadius: 8
+            }));
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: rows.map(r => r[labelCol]),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { family: 'Outfit' } } }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        btn.addEventListener('click', performQuery);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performQuery();
+        });
+    </script>
+</body>
+</html>
